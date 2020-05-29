@@ -6,7 +6,7 @@ class SoftmaxLoss(torch.nn.Module):
     """
     Given some embeddings and some targets, applies a linear layer
     to create logits over possible words and then returns the
-    negative log likelihood.
+    negative log likelihood. Note that this class does not add a padding ID.
     """
 
     def __init__(self, num_words: int, embedding_dim: int) -> None:
@@ -21,9 +21,16 @@ class SoftmaxLoss(torch.nn.Module):
         self.softmax_b = torch.nn.Parameter(torch.zeros(num_words))
 
     def forward(self, embeddings: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        """
+        # Parameters
 
-        # embeddings is size (n, embedding_dim)
-        # targets is (batch_size, ) with the correct class id
+        embeddings : `torch.Tensor`
+            Input tensor with size (batch_size, embedding_dim).
+        targets : `torch.Tensor`
+            Tensor with the correct class ids with size (batch_size, ).
+            Note that it should not include the padding id.
+        """
+
         # Does not do any count normalization / divide by batch size
         probs = torch.nn.functional.log_softmax(
             torch.matmul(embeddings, self.softmax_w) + self.softmax_b, dim=-1
